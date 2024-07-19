@@ -1,18 +1,27 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from "react";
+import Map from "react-map-gl";
+
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const mapboxAccessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
   return (
-    <>
-      <div className="">
-        hey this is map pin
-      </div>
-    </>
-  )
+    <Map
+      mapLib={import("mapbox-gl")}
+      initialViewState={{
+        longitude: 77.2090, 
+        latitude: 28.6139,
+        zoom: 8,
+      }}
+      style={{
+        width: "100vw",
+        height: "100vh",
+      }}
+      mapStyle="mapbox://styles/mapbox/streets-v9"
+      onViewportChange={(newViewport) => setViewport(newViewport)}
+      mapboxAccessToken={mapboxAccessToken}
+    />
+  );
 }
 
-export default App
+export default App;
