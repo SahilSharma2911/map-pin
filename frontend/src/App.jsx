@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Map, { Marker, Popup } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -8,13 +8,8 @@ import { format } from "timeago.js";
 import "./App.css";
 
 function App() {
-  const currentUsername = "john";
+  const currentUsername = "martha";
   const mapboxAccessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
-  const [viewport, setViewport] = useState({
-    latitude: 28.6448,
-    longitude: 77.216721,
-    zoom: 7,
-  });
   const [pins, setPins] = useState([]);
   const [currentPlaceId, setCurrentPlaceId] = useState(null);
   const [newPlace, setNewPlace] = useState(null);
@@ -24,6 +19,8 @@ function App() {
 
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+
+  const mapRef = useRef(null);
 
   useEffect(() => {
     const getPins = async () => {
@@ -39,12 +36,56 @@ function App() {
 
   const handleMarkerClick = (id, lat, long) => {
     setCurrentPlaceId(id);
-    setViewport({ latitude: lat, longitude: long, zoom: 6 });
+    if (mapRef.current) {
+      mapRef.current.easeTo({
+        center: [long, lat],
+        zoom: 7,
+        duration: 1000,
+      });
+    }
+  };
+
+  const handleAddClick = (e) => {
+    const { lng, lat } = e.lngLat;
+    setNewPlace({
+      lat: lat,
+      long: lng,
+    });
+    console.log(e);
+  };
+
+  const handleSubmit = async (e) => {
+    if (mapRef.current) {
+      mapRef.current.easeTo({
+        zoom: 7,
+        duration: 1000,
+      });
+    }
+    e.preventDefault();
+    const newPin = {
+      username: currentUsername,
+      title,
+      desc,
+      rating: star,
+      lat: newPlace.lat,
+      long: newPlace.long,
+    };
+
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/pins`,
+        newPin
+      );
+      setPins([...pins, res.data]);
+      setNewPlace(null);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
     <Map
-      mapLib={import("mapbox-gl")}
+      ref={mapRef}
       initialViewState={{
         longitude: 77.209,
         latitude: 28.6139,
@@ -55,17 +96,16 @@ function App() {
         height: "100vh",
       }}
       mapStyle="mapbox://styles/mapbox/streets-v9"
-      onViewportChange={(newViewport) => setViewport(newViewport)}
       mapboxAccessToken={mapboxAccessToken}
+      onDblClick={handleAddClick}
     >
       {pins.map((p) => (
-        <>
+        <div key={p._id}>
           <Marker longitude={p.long} latitude={p.lat} anchor="bottom">
             <div className="marker">
               <FaMapMarkerAlt
                 size={32}
                 onClick={() => handleMarkerClick(p._id, p.lat, p.long)}
-                
                 style={{
                   color:
                     currentUsername === p.username ? "tomato" : "slateblue",
@@ -109,8 +149,56 @@ function App() {
               </div>
             </Popup>
           )}
-        </>
+        </div>
       ))}
+      {newPlace && (
+        <Popup
+          latitude={newPlace.lat}
+          longitude={newPlace.long}
+          closeButton={true}
+          closeOnClick={false}
+          onClose={() => setNewPlace(null)}
+          anchor="left"
+        >
+          <div>
+            <form onSubmit={handleSubmit}>
+              <span className="card-item">
+                <label>Title</label>
+                <input
+                  placeholder="Enter a title"
+                  autoFocus
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </span>
+              <span className="card-item">
+                <label>Description</label>
+                <textarea
+                  placeholder="Say us something about this place."
+                  onChange={(e) => setDesc(e.target.value)}
+                />
+              </span>
+              <span className="card-item">
+                <label>Rating</label>
+                <select
+                  onChange={(e) => setStar(e.target.value)}
+                  className="form-select"
+                >
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+              </span>
+              <span className="card-item">
+                <button type="submit" className="submitButton">
+                  Add Pin
+                </button>
+              </span>
+            </form>
+          </div>
+        </Popup>
+      )}
     </Map>
   );
 }

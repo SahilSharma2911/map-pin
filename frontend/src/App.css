@@ -59,11 +59,15 @@ label {
 
 form {
   width: 250px;
-  height: 250px;
+  height: auto;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   color: rgb(88, 87, 87);
+  gap:20px;
+}
+.form-select{
+  margin-top: 5px;
 }
 
 input {
