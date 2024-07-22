@@ -1,7 +1,7 @@
-import { Cancel, Room } from "@material-ui/icons";
 import { GiCancel } from "react-icons/gi";
 import axios from "axios";
 import { useRef, useState } from "react";
+import { FaMapMarkerAlt } from "react-icons/fa";
 import "./login.css";
 
 export default function Login({ setShowLogin, setCurrentUsername, myStorage }) {
@@ -16,7 +16,10 @@ export default function Login({ setShowLogin, setCurrentUsername, myStorage }) {
       password: passwordRef.current.value,
     };
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/login`, user);
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/users/login`,
+        user
+      );
       setCurrentUsername(res.data.username);
       myStorage.setItem("user", res.data.username);
       setShowLogin(false);
@@ -27,9 +30,9 @@ export default function Login({ setShowLogin, setCurrentUsername, myStorage }) {
 
   return (
     <div className="loginContainer">
-      <div className="logo">
-        <Room className="logoIcon" />
-        <span>Map Pin</span>
+      <div className="logol">
+        <FaMapMarkerAlt />
+        Map Pin
       </div>
       <form onSubmit={handleSubmit}>
         <input autoFocus placeholder="username" ref={usernameRef} />

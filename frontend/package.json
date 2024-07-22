@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@material-ui/icons": "^4.11.3",
     "@mui/material": "^5.16.4",
     "axios": "^1.7.2",
     "mapbox-gl": "^3.5.2",

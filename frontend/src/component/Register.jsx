@@ -31,7 +31,7 @@ export default function Register({ setShowRegister }) {
 
   return (
     <div className="registerContainer">
-      <div className="logo">
+      <div className="logor">
         <FaMapMarkerAlt />
         Map Pin
       </div>
