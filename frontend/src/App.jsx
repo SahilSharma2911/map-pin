@@ -6,9 +6,14 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import { AiFillStar } from "react-icons/ai";
 import { format } from "timeago.js";
 import "./App.css";
+import Login from "./component/Login";
+import Register from "./component/Register";
 
 function App() {
-  const currentUsername = "martha";
+  const myStorage = window.localStorage;
+  const [currentUsername, setCurrentUsername] = useState(
+    myStorage.getItem("user")
+  );
   const mapboxAccessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
   const [pins, setPins] = useState([]);
   const [currentPlaceId, setCurrentPlaceId] = useState(null);
@@ -16,7 +21,6 @@ function App() {
   const [title, setTitle] = useState(null);
   const [desc, setDesc] = useState(null);
   const [star, setStar] = useState(0);
-
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
 
@@ -81,6 +85,11 @@ function App() {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const handleLogout = () => {
+    setCurrentUsername(null);
+    myStorage.removeItem("user");
   };
 
   return (
@@ -198,6 +207,31 @@ function App() {
             </form>
           </div>
         </Popup>
+      )}
+      {currentUsername ? (
+        <button className="button logout" onClick={handleLogout}>
+          Log out
+        </button>
+      ) : (
+        <div className="buttons">
+          <button className="button login" onClick={() => setShowLogin(true)}>
+            Log in
+          </button>
+          <button
+            className="button register"
+            onClick={() => setShowRegister(true)}
+          >
+            Register
+          </button>
+        </div>
+      )}
+      {showRegister && <Register setShowRegister={setShowRegister} />}
+      {showLogin && (
+        <Login
+          setShowLogin={setShowLogin}
+          setCurrentUsername={setCurrentUsername}
+          myStorage={myStorage}
+        />
       )}
     </Map>
   );
